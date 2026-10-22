@@ -1,0 +1,43 @@
+{
+  "1_data_source": "PHM Society 2018 Ion Mill Etch (01_M02, 공개 데이터)",
+  "2_features": [
+    "FLOWCOOLPRESSURE",
+    "FLOWCOOLFLOWRATE",
+    "IONGAUGEPRESSURE"
+  ],
+  "3_train_interval": "기존 정상 추정 학습파일 앞 80%; 뒤 20%는 참조 확인. 정상 정답은 미확인",
+  "4_preprocessing": "숫자 변환 + train 중앙값으로 결측 채움 (스케일링 없음: IsolationForest는 변수별 분할이라 필수 아님)",
+  "5_algorithm": "IsolationForest(n_estimators=200, contamination=auto, random_state=42)",
+  "6_score_direction": "anomaly_score = -score_samples · 클수록 더 낯섦 · 고장확률 아님",
+  "7_known_limits": "RETROSPECTIVE에서는 시간 혼합·운전조건 차이가 남고 미래 예측 성능을 검증하지 않는다. 이상점수는 고장을 확정하지 않는다. 참조 정지시각은 고장 시작시각이 아니다. 운전조건·다른 센서·안전 인터록을 함께 확인한다.",
+  "8_version": "student_web_v4",
+  "dataset_mode": "INDUSTRY",
+  "initial_T1": 0.5580009368683148,
+  "threshold_source": "학습에서 분리한 정상 추정 참조자료의 후보 기준 · 과거자료 해석",
+  "runtime_versions": {
+    "python": "3.12.14",
+    "sklearn": "1.8.0",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3"
+  },
+  "evaluation_mode": "RETROSPECTIVE",
+  "split_audit": {
+    "time_ordered": false,
+    "same_single_operating_condition": false,
+    "train_rows_at_or_after_validation_start": 4399
+  },
+  "preset_A": {
+    "T1": 0.5580009368683148,
+    "T2": 0.6782730056973759
+  },
+  "preset_B": {
+    "T1": 0.6556748172245014,
+    "T2": 0.7095563045868777
+  },
+  "initial_T2": 0.6782730056973759,
+  "validation_counts_at_initial_T": {
+    "NORMAL": 1313,
+    "REVIEW": 8,
+    "ACTION": 0
+  }
+}

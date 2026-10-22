@@ -1,0 +1,311 @@
+<!doctype html><html lang="ko" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="식각 장비 데이터, AI 이상점수, 기준선 비교와 안전 복구를 배우는 D-A-A LOOP 수업 관제탑"><title>D-A-A LOOP 식각 장비 AI 관제탑</title><link rel="icon" href="assets/figures/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/base.css"><link rel="stylesheet" href="assets/classroom.css"></head><body><a class="skip-link" href="#p-intake">수업 화면으로 이동</a><div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="eyebrow">D-A-A LOOP <span class="version-badge">CLASSROOM v4</span></span>
+      <h1>식각 장비 AI 관제탑</h1>
+    </div>
+    <div class="notice"><span>교실에서 배우는 데이터와 안전</span></div>
+  </header><section class="hero" aria-label="오늘의 수업 안내">
+ <div class="hero-copy"><span class="overline">SEMICONDUCTOR · DATA TO DECISION</span><h2>기록에서 신호를 찾고,<br>근거로 판단합니다.</h2><p>냉각 압력과 유량을 살펴보고 AI의 제안을 확인하세요.<br>마지막 판단에는 현장 근거와 안전조건이 필요합니다.</p>
+ <div class="hero-actions"><button class="btn primary" id="quick-5">5차시 기준 비교 시작</button><button class="btn" id="quick-9">9차시 안전 시험 시작</button></div>
+ <div class="lesson-tags"><span>01 데이터 읽기</span><span>02 AI 해석</span><span>03 점검과 안전</span></div></div>
+ <figure class="hero-figure"><img src="assets/figures/ion_mill.svg" alt="진공 챔버 안의 이온빔과 웨이퍼, 지지부 아래 냉각 가스 회로의 개념도"><figcaption>Ion Mill 식각 장비의 학습용 개념도</figcaption></figure>
+</section>
+<details class="lesson-guide"><summary>처음 사용하는 학생과 선생님께</summary><div class="guide-grid"><p><b>5차시</b><br>가상 점수 또는 실제 자료 선택 → 기준 A/B 비교 → 수치와 선택 이유 기록</p><p><b>6~7차시</b><br>사례 상세보기 → 공정조건과 세 센서 확인 → 대표 사례 한 건 점검 요청</p><p><b>8~9차시</b><br>가상 연습의 A로 START → 안전신호 0 → 복구해도 STOP 유지 → ACK → RESET → 별도 START</p><p><b>10차시</b><br>활동 로그 저장 → 기준선 또는 질문 하나 수정 → 같은 조건에서 다시 확인</p></div><p class="small">교사는 수업 전에 가상·실제 자료를 구분해 안내합니다. 이 웹사이트는 교육용 모의 운전이며 실제 장비에 연결하지 않습니다. 입력 파일은 브라우저에서 처리하고, 활동 로그는 현재 브라우저에 저장됩니다.</p></details>
+
+  <div class="strip" role="status" aria-live="polite">
+    <div><span class="k">데이터</span><span class="v" id="st-src">—</span></div>
+    <div><span class="k">판정기준</span><span class="v mono" id="st-t">—</span></div>
+    <div><span class="k">설비 상태</span><span class="pill" id="st-state"><i></i><span>RUN</span></span></div>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="관제탑 방">
+    <button role="tab" id="tab-intake" aria-controls="p-intake" aria-selected="true"><span class="n">1</span>데이터 준비<span class="when">4·5차시</span></button>
+    <button role="tab" id="tab-threshold" aria-controls="p-threshold" aria-selected="false"><span class="n">2</span>기준 A/B 비교<span class="when">5차시</span></button>
+    <button role="tab" id="tab-case" aria-controls="p-case" aria-selected="false"><span class="n">3</span>사례 상세보기<span class="when">6차시</span></button>
+    <button role="tab" id="tab-main" aria-controls="p-main" aria-selected="false"><span class="n">4</span>안전 운전 시험<span class="when">9차시</span></button>
+    <button role="tab" id="tab-log" aria-controls="p-log" aria-selected="false"><span class="n">5</span>활동 로그</button>
+  </nav>
+
+  <!-- ① 데이터 준비 -->
+  <section class="panel" id="p-intake" role="tabpanel" aria-labelledby="tab-intake">
+    <div class="intro">
+      <h2>데이터 준비</h2>
+      <p>AI LAB에서 받은 파일을 넣고, 열 규격과 품질을 먼저 확인한다. 이 앱은 값을 새로 만들거나 채우지 않는다.</p>
+    </div>
+    <div class="stack">
+      <div class="callout warn" id="sample-banner">지금 보이는 것은 <b>활동지와 같은 가상 점수 12개 (실측 아님)</b>다. 수업 때는 AI LAB 노트북에서 받은 <span class="mono">score_validation.csv</span> · <span class="mono">score_test.csv</span> · <span class="mono">model_summary.json</span>을 넣는다.</div>
+      <div class="dataset-choice"><div><b>실제 장비 자료로 살펴보기</b><p>PHM 2018의 과거 기록 1321행과 실제 실행 결과를 바로 불러옵니다.</p></div><button class="btn primary" id="btn-real">실제 자료 불러오기</button></div><p id="real-msg" class="small" role="status"></p><div class="drop" id="drop">
+        <div class="stack" style="gap:4px">
+          <b>파일을 여기에 끌어다 놓거나 선택한다 (여러 개 한꺼번에 가능)</b>
+          <span class="small">CSV: score_validation · score_test · bundle_A/B/C (선택) &nbsp;·&nbsp; JSON: model_summary</span>
+        </div>
+        <div class="row">
+          <label class="btn primary" for="file-in">파일 선택</label>
+          <input type="file" id="file-in" accept=".csv,.json" multiple hidden>
+          <button class="btn" id="btn-sample">가상 점수 연습</button>
+        </div>
+      </div>
+      <div class="callout bad" id="intake-err" hidden></div>
+      <div class="grid2" id="file-cards"></div>
+      <div class="card" id="model-card"></div><p class="callout warn">원안 6000행 실습자료는 학습·검증 시각과 운전조건이 섞여 있습니다. v4 결과도 RETROSPECTIVE이면 과거자료 해석이며 미래 고장 예측 성능을 뜻하지 않습니다. 점수 건수로 고장 확률·정확도를 계산하지 않습니다.</p>
+    </div>
+  </section>
+
+  <!-- ② 기준 A/B 비교 -->
+  <section class="panel" id="p-threshold" role="tabpanel" aria-labelledby="tab-threshold" hidden>
+    <div class="intro">
+      <h2>기준 A/B 비교</h2>
+      <p>검증(validation) 데이터의 이상점수를 T1 · T2로 세 구간으로 나눈다. 이상점수는 확률이 아니라 “평소와 다른 정도”다.</p>
+    </div>
+    <div class="stack" id="th-body">
+      <div class="counts">
+        <div class="cnt N"><span class="lab">NORMAL · 일반 관찰</span><span class="big" id="c-N">0</span><span class="rule">점수 &lt; T1</span><span class="delta" id="d-N"></span></div>
+        <div class="cnt R"><span class="lab">REVIEW · 재검토</span><span class="big" id="c-R">0</span><span class="rule">T1 ≤ 점수 &lt; T2</span><span class="delta" id="d-R"></span></div>
+        <div class="cnt A"><span class="lab">ACTION · 점검 요청</span><span class="big" id="c-A">0</span><span class="rule">점수 ≥ T2</span><span class="delta" id="d-A"></span></div>
+      </div>
+      <p class="tiny" id="c-total"></p>
+      <div class="card stack"><b>5차시 기본 활동: 준비된 A/B를 선택해 건수를 비교합니다.</b><div class="row"><button class="btn primary" id="preset-A">기준 A 선택</button><button class="btn primary" id="preset-B">기준 B 선택</button></div><span class="small">직접 숫자를 조절하는 활동은 선택입니다. 기본값은 교사 제공 참조 후보이며 고장 정답이나 안전 한계가 아닙니다.</span></div><details class="card stack" id="slider-card"><summary>선택 활동 · 기준선 하나를 직접 바꾸기</summary>
+        <div class="slider">
+          <b>T1</b><input type="range" id="r-t1" aria-label="T1 기준선">
+          <div class="fine"><button class="btn sm" data-nudge="t1" data-d="-0.001" aria-label="T1 0.001 내리기">−</button><input type="number" id="n-t1" step="0.0001" aria-label="T1 값"><button class="btn sm" data-nudge="t1" data-d="0.001" aria-label="T1 0.001 올리기">+</button></div>
+          <b>T2</b><input type="range" id="r-t2" aria-label="T2 기준선">
+          <div class="fine"><button class="btn sm" data-nudge="t2" data-d="-0.001" aria-label="T2 0.001 내리기">−</button><input type="number" id="n-t2" step="0.0001" aria-label="T2 값"><button class="btn sm" data-nudge="t2" data-d="0.001" aria-label="T2 0.001 올리기">+</button></div>
+        </div>
+        <div class="row">
+          <button class="btn" id="btn-default">교사 제공 기준으로</button>
+          <span class="small" id="th-msg"></span>
+        </div>
+      </details>
+      <div class="grid2">
+        <div class="card">
+          <h3>점수 분포 (검증 데이터)</h3>
+          <svg class="chart" id="hist" viewBox="0 0 640 220" role="img" aria-label="이상점수 분포와 T1 T2 위치"></svg>
+          <div class="legend"><span><i style="background:var(--z0)"></i>NORMAL</span><span><i style="background:var(--z1)"></i>REVIEW</span><span><i style="background:var(--z2)"></i>ACTION</span></div>
+        </div>
+        <div class="card">
+          <h3>시간 순서로 보기 · 고장 기록 겹쳐 보기</h3>
+          <svg class="chart" id="tline" viewBox="0 0 640 220" role="img" aria-label="검증 데이터 이상점수 시계열"></svg>
+          <div class="legend"><span><i style="background:var(--accent)"></i>이상점수</span><span><i style="background:var(--ref)"></i>참고선 · 정비 정지 기록</span></div>
+          <p class="tiny">참고선은 정비 정지 시각이다. 고장이 시작된 시각이 아니며, 판정에 쓰지 않는다.</p>
+        </div>
+      </div>
+      <div class="card stack">
+        <div class="row" style="justify-content:space-between"><h3 style="margin:0">기준선 안 비교 (활동지 3)</h3>
+          <div class="row"><button class="btn sm" id="save-A">지금 값을 안 A로 저장</button><button class="btn sm" id="save-B">지금 값을 안 B로 저장</button></div></div>
+        <div class="tbl-wrap"><table id="plan-tbl"></table></div>
+      </div>
+      <div class="card stack" id="final-card">
+        <h3 style="margin:0">최종 기준선과 제출 (활동지 3)</h3>
+        <div class="row">
+          <button class="btn primary" id="btn-final">지금 값으로 최종 확정</button>
+          <button class="btn" id="btn-unfinal" hidden>확정 풀기</button>
+          <span class="small" id="final-msg">확정하면 안전 운전 시험과 9차시 묶음이 이 값을 쓴다.</span>
+        </div>
+        <div class="grid2">
+          <label class="f">팀 이름<input type="text" id="sub-team" placeholder="예: 3조"></label>
+          <label class="f">버전<input type="text" id="sub-ver" value="v4 (수정안)"></label>
+        </div>
+        <label class="f">근거 문장<textarea id="sub-why" rows="3"></textarea></label>
+        <label class="f">이 기준으로도 놓칠 수 있는 것 (불확실성)<textarea id="sub-unc" rows="2" placeholder="예: 정비 정지 시각은 고장 시작 시각이 아니라서 실제로 언제부터 이상이었는지 모른다"></textarea></label>
+        <div class="row"><button class="btn" id="btn-submit">제출 파일 저장 (JSON)</button><span class="small" id="sub-msg"></span></div>
+        <div class="callout info" id="test-box"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ 사례 상세보기 -->
+  <section class="panel" id="p-case" role="tabpanel" aria-labelledby="tab-case" hidden>
+    <div class="intro">
+      <h2>사례 상세보기 · 2차 검토</h2>
+      <p>점수만 보고 결정하지 않는다. 다른 센서, 운전조건, 앞뒤 추세를 함께 보고 운영자 판단을 기록한다.</p>
+    </div>
+    <div class="grid2" style="grid-template-columns:minmax(0,.9fr) minmax(0,1.4fr)">
+      <div class="card stack">
+        <div class="row" style="justify-content:space-between"><h3 style="margin:0">검토 대상 (현재 T1 · T2 기준)</h3>
+          <div class="seg" id="case-filter"><button aria-pressed="true" data-f="all">전체</button><button aria-pressed="false" data-f="1">REVIEW</button><button aria-pressed="false" data-f="2">ACTION</button></div></div>
+        <div class="tbl-wrap" style="max-height:520px;overflow:auto"><table id="case-list"></table></div>
+      </div>
+      <div class="card stack" id="case-detail"></div>
+    </div>
+  </section>
+
+  <!-- ④ 안전 운전 시험 -->
+  <section class="panel" id="p-main" role="tabpanel" aria-labelledby="tab-main" hidden>
+    <div class="intro">
+      <h2>안전 운전 시험 · 통합운전</h2>
+      <p>AI 판단, 안전조건, 운전 상태를 따로 읽습니다. 안전 신호 복구와 RESET만으로는 운전하지 않습니다.</p>
+    </div>
+    <div class="stack">
+      <div class="card row" style="justify-content:space-between">
+        <div class="row"><span class="small">묶음</span>
+          <div class="seg" id="bundle-seg">
+            <button data-b="A" aria-pressed="true">A 일반 관찰</button><button data-b="B" aria-pressed="false">B 재검토</button><button data-b="C" aria-pressed="false">C 점검 요청</button>
+          </div>
+          <span class="tiny">시험 D = 묶음 A + 안전 스위치</span>
+        </div>
+        <div class="row"><span class="small">속도</span><div class="seg" id="speed-seg"><button data-s="1" aria-pressed="true">1×</button><button data-s="2" aria-pressed="false">2×</button><button data-s="5" aria-pressed="false">5×</button></div></div>
+      </div>
+      <p class="tiny" id="bundle-info"></p>
+
+      <div class="main-grid">
+        <!-- PLC 출력 -->
+        <div class="plc" id="plc">
+          <div class="tower" aria-label="표시등">
+            <div class="lampwrap"><div class="lamp r" id="L-r"></div><span class="lamp-label">RED</span></div>
+            <div class="lampwrap"><div class="lamp y" id="L-y"></div><span class="lamp-label">YELLOW</span></div>
+            <div class="lampwrap"><div class="lamp g" id="L-g"></div><span class="lamp-label">GREEN</span></div>
+            <div class="pole"></div>
+          </div>
+          <div class="stack" style="gap:10px">
+            <div><span class="tiny">설비 상태 · PLC 출력</span><div class="statebig" id="state-big">RUN</div><div class="small" id="state-desc"></div></div>
+            <div class="outs">
+              <div class="out"><div class="lab">부저</div><div class="val"><span class="dot" id="bz-dot"></span><span id="bz">무음</span></div></div>
+              <div class="out"><div class="lab">PERMIT (모의 운전 허가)</div><div class="val"><span class="dot" id="pm-dot"></span><span id="pm">ON</span></div></div>
+            </div>
+            <div class="sw">
+              <button class="toggle" role="switch" aria-checked="true" id="sw-safe" aria-label="SAFETY_OK 모의 스위치"><span id="sw-txt">1</span></button>
+              <div><b class="mono">SAFETY_OK</b><div class="tiny" id="sw-desc">1 = 비상정지 b접점 닫힘 · 도어 닫힘</div></div>
+            </div>
+            <div class="row">
+              <button class="btn ok" id="btn-start">▶ START · 시작</button>
+              <button class="btn" id="btn-pause">❚❚ 일시정지</button>
+              <button class="btn" id="btn-init">초기화</button>
+            </div>
+            <div class="row">
+              <button class="btn warn" id="btn-ack">ACK · 부저 정지</button>
+              <button class="btn bad" id="btn-reset">RESET</button>
+              <button class="btn sm" id="btn-sound" aria-pressed="false">소리 켜기</button>
+            </div>
+            <p class="say" id="say" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <!-- PC 판정 -->
+        <div class="card pc">
+          <div class="row" style="justify-content:space-between">
+            <h3 style="margin:0">PC 판정 → PLC 신호</h3>
+            <span class="alive b" id="alive"><i></i><span>PC_ALIVE</span></span>
+          </div>
+          <div class="grid3" style="gap:8px">
+            <div class="out"><div class="lab">이상점수</div><div class="val mono" id="pc-score">—</div></div>
+            <div class="out"><div class="lab">AI 판정</div><div class="val" id="pc-ai">대기</div></div>
+            <div class="out"><div class="lab"><span class="advanced-label">선택 심화 · 신호 코드</span></div><div class="val"><span class="bits"><span class="bit" id="b1">0</span><span class="bit" id="b0">0</span></span></div></div>
+          </div>
+          <svg class="chart" id="trend" viewBox="0 0 640 200" role="img" aria-label="재생 중인 묶음의 이상점수 추세"></svg>
+          <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+          <div class="row" style="justify-content:space-between"><span class="tiny mono" id="pc-row">행 — / —</span><span class="tiny mono" id="pc-t"></span></div>
+          <div class="callout info" id="comm-box">통신 정상 · PC_ALIVE가 3초 동안 바뀌지 않으면 PLC는 통신 이상으로 보고 CHECK로 간다.</div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="stack">
+          <div class="card stack" id="review-panel" hidden>
+            <h3 style="margin:0">대표 사례 점검</h3>
+            <p class="small" id="rv-why"></p>
+            <div class="tbl-wrap"><table id="rv-tbl"></table></div>
+            <label class="f">운영자 메모<textarea id="rv-memo" rows="2" placeholder="무엇을 보고 판단했는지 한 줄"></textarea></label>
+            <div class="row">
+              <button class="btn ok" data-rv="keep">관찰 유지</button>
+              <button class="btn warn" data-rv="check">점검 요청</button>
+              <button class="btn bad" data-rv="act">이상 대응 (모의 정지)</button>
+            </div>
+          </div>
+          <div class="card stack" id="reset-panel" hidden>
+            <h3 style="margin:0">RESET 4단계 · 복구 확인</h3>
+            <p class="small">4단계 뒤에는 현재 조건을 확인하고 운전 대기 상태가 됩니다. START를 따로 눌러야 운전합니다. 점수가 내려갔다는 이유만으로 다시 돌지 않는다.</p>
+            <div>
+              <div class="step" id="rs1"><span class="no">1</span><div class="stack" style="gap:4px"><b>SAFETY_OK = 1 확인</b><span class="tiny">비상정지 해제 · 도어 닫힘을 확인한다</span><div><button class="btn sm" id="rs1-btn">확인</button></div></div></div>
+              <div class="step" id="rs2"><span class="no">2</span><div class="stack" style="gap:4px"><b>원인 확인 · 메모 입력</b><textarea id="rs2-memo" rows="2" placeholder="예: 시험 D — 비상정지 스위치를 일부러 눌렀다"></textarea><div><button class="btn sm" id="rs2-btn">메모 저장</button></div></div></div>
+              <div class="step" id="rs3"><span class="no">3</span><div class="stack" style="gap:4px"><b>복구 준비</b><span class="tiny">사유를 기록한다. 마지막 현재 조건 확인까지 정지 해제를 보류한다</span><div><button class="btn sm" id="rs3-btn">복구 준비</button></div></div></div>
+              <div class="step" id="rs4"><span class="no">4</span><div class="stack" style="gap:4px"><b>현재 조건 확인 → 운전 대기</b><span class="tiny">재생은 저절로 다시 시작하지 않는다. [시작]을 눌러야 한다</span><div><button class="btn sm ok" id="rs4-btn">운영자 확인</button></div></div></div>
+            </div>
+            <div class="row"><button class="btn sm" id="rs-cancel">RESET 취소</button><span class="small" id="rs-msg"></span></div>
+          </div>
+          <div class="card">
+            <h3>규칙표 · 위에서 먼저 맞는 규칙이 이긴다</h3>
+            <div class="tbl-wrap"><table class="rules" id="rules">
+              <tr><th>규칙</th><th>조건</th><th>상태 · 램프</th><th>부저</th><th>PERMIT</th></tr>
+              <tr data-r="R1"><td class="mono">R1</td><td>SAFETY_OK = 0</td><td>STOP · RED 점등 (래치)</td><td>연속</td><td>차단</td></tr>
+              <tr data-r="R2"><td class="mono">R2</td><td>AI_STATUS = 2 · 무효값 11 · 통신 이상</td><td>CHECK · YELLOW 점멸</td><td>단속 1회</td><td>제한</td></tr>
+              <tr data-r="R3"><td class="mono">R3</td><td>AI_STATUS = 1</td><td>WARNING · YELLOW</td><td>무음</td><td>유지</td></tr>
+              <tr data-r="R4"><td class="mono">R4</td><td>그 외</td><td>READY 대기 / START 후 RUN</td><td>무음</td><td>ON</td></tr>
+              <tr data-r="RS"><td class="mono">RESET</td><td>STOP · CHECK에서 RESET</td><td>RESET · GREEN 점멸</td><td>무음</td><td>차단</td></tr>
+            </table></div>
+            <p class="tiny" style="margin-top:6px">ACTION·무효 신호·통신 이상이 남으면 CHECK와 시작 차단을 유지한다. 관찰 유지 기록으로 우회하지 않는다.</p>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card stack">
+            <div class="row" style="justify-content:space-between"><h3 style="margin:0">고장 주입 · 한 번에 하나만</h3><button class="btn sm" id="inj-clear" disabled>주입 복구</button></div>
+            <div class="inj">
+              <button class="btn" data-inj="1" aria-pressed="false"><span class="t">INJECT 01</span>PC 신호 끊기<span class="tiny">3초 뒤 PLC는?</span></button>
+              <button class="btn" data-inj="2" aria-pressed="false"><span class="t">INJECT 02</span>PLC 응답 지연<span class="tiny">표시가 1초 늦게</span></button>
+              <button class="btn" data-inj="3" aria-pressed="false"><span class="t">INJECT 03</span>SAFETY_OK = 0<span class="tiny">안전 위반 순간</span></button>
+              <button class="btn" data-inj="4" aria-pressed="false"><span class="t">추가 실험</span>AI 무효값 11<span class="tiny">잘못된 신호</span></button>
+            </div>
+          </div>
+          <div class="card stack">
+            <div class="row" style="justify-content:space-between"><h3 style="margin:0">이벤트 로그 (최근)</h3><span class="tiny">전체는 ⑤ 활동 로그</span></div>
+            <div class="minilog" id="minilog"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑤ 활동 로그 -->
+  <section class="panel" id="p-log" role="tabpanel" aria-labelledby="tab-log" hidden>
+    <div class="intro">
+      <h2>활동 로그</h2>
+      <p>모든 조작과 상태 변화가 시각과 함께 남는다. 제출할 때는 CSV로 저장한다.</p>
+    </div>
+    <div class="stack">
+      <div class="row" style="justify-content:space-between">
+        <div class="seg" id="log-filter"><button data-f="all" aria-pressed="true">전체</button><button data-f="관제" aria-pressed="false">안전 운전 시험</button><button data-f="기준" aria-pressed="false">기준 A/B 비교</button><button data-f="검토" aria-pressed="false">사례 검토</button><button data-f="접수" aria-pressed="false">데이터 접수</button></div>
+        <div class="row"><button class="btn primary" id="log-save">로그 CSV 저장</button><button class="btn" id="log-clear">로그 비우기</button><span class="small" id="log-msg"></span></div>
+      </div>
+      <div class="tbl-wrap"><table id="log-tbl"></table></div>
+    </div>
+  </section>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="card">
+    <div class="row" style="justify-content:space-between"><h3 style="margin:0" id="modal-title">파일 내용</h3><button class="btn sm" id="modal-close">닫기</button></div>
+    <p class="small" id="modal-desc">이 화면에서는 파일 저장이 막혀 있다. 아래 내용을 복사해 메모장에 붙여 넣고 저장한다.</p>
+    <textarea id="modal-text" readonly></textarea>
+    <div class="row"><button class="btn primary" id="modal-copy">전체 복사</button><span class="small" id="modal-msg"></span></div>
+  </div>
+</div>
+
+<script type="text/plain" id="sample-val">time,row_id,data_role,anomaly_score,data_source
+1,0,validation,0.18,교육용_가상점수
+2,1,validation,0.25,교육용_가상점수
+3,2,validation,0.32,교육용_가상점수
+4,3,validation,0.38,교육용_가상점수
+5,4,validation,0.42,교육용_가상점수
+6,5,validation,0.48,교육용_가상점수
+7,6,validation,0.52,교육용_가상점수
+8,7,validation,0.58,교육용_가상점수
+9,8,validation,0.62,교육용_가상점수
+10,9,validation,0.66,교육용_가상점수
+11,10,validation,0.71,교육용_가상점수
+12,11,validation,0.78,교육용_가상점수</script>
+<script type="text/plain" id="sample-test">time,row_id,data_role,anomaly_score,data_source
+1,0,test,0.18,교육용_가상점수
+2,1,test,0.25,교육용_가상점수
+3,2,test,0.32,교육용_가상점수
+4,3,test,0.38,교육용_가상점수
+5,4,test,0.42,교육용_가상점수
+6,5,test,0.48,교육용_가상점수
+7,6,test,0.52,교육용_가상점수
+8,7,test,0.58,교육용_가상점수
+9,8,test,0.62,교육용_가상점수
+10,9,test,0.66,교육용_가상점수
+11,10,test,0.71,교육용_가상점수
+12,11,test,0.78,교육용_가상점수</script>
+<script type="application/json" id="sample-summary">{"1_data_source": "개념 연습용 가상 점수 12개. 실측 센서·고장 정답 아님.", "initial_T1": 0.5, "initial_T2": 0.65, "preset_A": {"T1": 0.5, "T2": 0.65}, "preset_B": {"T1": 0.6, "T2": 0.7}, "threshold_source": "학생 활동지 3의 가상 연습 기준", "evaluation_mode": "SYNTHETIC_CONCEPT_ONLY"}</script>
+
+<footer class="site-footer">D-A-A LOOP · PHM 2018 Ion Mill 학습 자료 · AI 점수는 고장 확률이 아닙니다.<br>학생 결과는 활동 로그에서 내려받아 제출하세요.</footer><script src="assets/papaparse.min.js"></script><script src="assets/app.js"></script></body></html>
